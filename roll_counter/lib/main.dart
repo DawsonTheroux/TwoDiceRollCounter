@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_grid_button/flutter_grid_button.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'GamesPage.dart';
+import 'GameDBHelper.dart';
+import 'GameInputPage.dart';
 
 
 void main() => runApp(MyApp());
-List _rollsCounter = [0,0,0,0,0,0,0,0,0,0,0];
-List _rollsInOrder = [];
+List<int> _rollsCounter = [0,0,0,0,0,0,0,0,0,0,0];
+List<int> _rollsInOrder = [];
 
 class MyApp extends StatelessWidget {
   @override
@@ -22,6 +25,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//RollData class, used to create the bar graph.
 class RollData {
   int rollNum;
   int amountRolled;
@@ -39,14 +43,24 @@ class RollInput extends StatefulWidget {
 }
 
 class _RollInput extends State<RollInput> {
+  final GameDBHelper gameDB = GameDBHelper();
   @override
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
         title: Text('Dice Roll Counter'),
+        actions:[
+          IconButton(icon: Icon(Icons.analytics), onPressed: _pushGamesData),
+        ]
       ),
       body: _buildRollInput(),
     );
+  }
+
+  void _pushGamesData(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GamesDataPage(gameDB: gameDB)));
   }
 
   Widget _buildRollInput(){
@@ -126,6 +140,12 @@ class _RollInput extends State<RollInput> {
     }
     return Column(
             children: [
+              FlatButton(
+                child: Text("Save Game"),
+                color: Colors.purple,
+                textColor: Colors.white,
+                onPressed: gotogameInput,
+              ),
               Container(
                 padding: EdgeInsets.only(bottom: 20),
                 child: Text("Total Rolls: " + _rollsInOrder.length.toString()),
@@ -138,11 +158,14 @@ class _RollInput extends State<RollInput> {
                   ],
                 )
               )
-
-
             ]
         );
+  }
 
+  void gotogameInput(){
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GameInputPage(rollsInOrder: _rollsInOrder, rollsCounter: _rollsCounter, gameDB: gameDB)));
   }
 
   //Turns the roll information into a graph to be displayed at the bottom of the page.
